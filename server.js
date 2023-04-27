@@ -117,6 +117,25 @@ app.get('/api/2', (req, res) => {
       });
     });
 
+         // 搜索个人药品账单
+         app.get('/api/searchpatientlist', (req, res) => {
+          const searchTerm = req.query.searchTerm;
+          const query = `SELECT * FROM fee_list WHERE uno LIKE '${searchTerm}'`;
+          connection.query(query, (err, results) => {
+            if (err) throw err;
+            res.json(results);
+          });
+        });
+
+          // 搜索个人药品账单
+          app.get('/api/searchmedicinelist', (req, res) => {
+            const searchTerm = req.query.searchTerm;
+            const query = `SELECT * FROM medicinelist WHERE mname LIKE '%${searchTerm}%'`;
+            connection.query(query, (err, results) => {
+              if (err) throw err;
+              res.json(results);
+            });
+          });
 //   get请求药品库存
 app.get('/api/medicine', (req, res) => {
     connection.query('SELECT * FROM medicinelist', (error, results) => {
@@ -155,6 +174,18 @@ app.delete('/records/:mname', (req, res) => {
     } else {
       res.sendStatus(204);
     }
+  });
+});
+
+// 更新药品
+app.put('/update', (req, res) => {
+  // 更新指定 ID 的记录
+  // const mname = req.params.mname;
+  const mname=req.body.mname;
+  const mamount=req.body.mamount;
+  connection.query('UPDATE medicinelist SET mamount=? WHERE mname = ?', [mamount,mname], (err, results) => {
+    if (err) throw err;
+    console.log(`Updated ${results.affectedRows} rows`);
   });
 });
 //删除用户登陆权限
@@ -284,6 +315,7 @@ app.post('/api/admission', (req, res) => {
     Bednumber: req.body.Bednumber,
     situation: req.body.situation,
     phone: req.body.phone,
+    adoctor:req.body.adoctor
   };
   connection.query('INSERT INTO hospitalization SET ?', newRecord, (error, result) => {
     if (error) {
